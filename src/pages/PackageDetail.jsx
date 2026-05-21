@@ -1,247 +1,350 @@
-import { useParams, Link } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { 
-  ArrowLeft, MapPin, Calendar, CheckCircle2, IndianRupee, 
-  Mountain, Clock, Hotel, MessageCircle, Phone, Info, ShieldAlert, CloudRain 
+import {
+  ArrowLeft,
+  ArrowRight,
+  BedDouble,
+  CalendarDays,
+  CheckCircle2,
+  Clock,
+  CloudRain,
+  IndianRupee,
+  Info,
+  MapPin,
+  MessageCircle,
+  ShieldCheck,
+  Sparkles,
+  Train,
+  XCircle,
 } from 'lucide-react';
+import Footer from '../components/UI/Footer';
+import SiteNav from '../components/UI/SiteNav';
 import { tourPackages } from '../data/packages';
+import { destinationHighlights, whatsappLinkNumber } from '../data/site';
 
 export default function PackageDetail() {
   const { id } = useParams();
-  const pkg = tourPackages.find(p => p.id === id);
+  const pkg = tourPackages.find((item) => item.id === id);
 
-  const whatsappNumber = "9977110166";
-  const waLink = `https://wa.me/${whatsappNumber}?text=Hello! I'm interested in the ${pkg?.title} package.`;
+  if (!pkg) {
+    return (
+      <div className="min-h-screen bg-slate-950 font-body text-white">
+        <SiteNav />
+        <main className="grid min-h-screen place-items-center px-5 pt-28 text-center">
+          <div>
+            <p className="text-xs font-black uppercase tracking-[0.3em] text-amber-200">
+              Package Not Found
+            </p>
+            <h1 className="mt-4 font-heading text-5xl font-black">This route is not available.</h1>
+            <Link
+              to="/#packages"
+              className="mt-8 inline-flex items-center gap-3 bg-white px-6 py-4 text-xs font-black uppercase tracking-[0.2em] text-slate-950"
+            >
+              Back to Packages
+              <ArrowRight size={16} />
+            </Link>
+          </div>
+        </main>
+      </div>
+    );
+  }
 
-  if (!pkg) return <div className="text-center mt-32 text-slate-900 font-heading text-2xl">Package Not Found</div>;
+  const whatsappText = encodeURIComponent(
+    `Hello! I'm interested in the ${pkg.title} package. Please share batch dates and booking details.`
+  );
+  const waLink = `https://wa.me/${whatsappLinkNumber}?text=${whatsappText}`;
+  const related = tourPackages.filter((item) => item.id !== pkg.id);
 
   return (
-    <div className="relative min-h-screen font-body selection:bg-brand-iceMid overflow-x-hidden bg-[#F8FAFC]">
-      
-      {/* 1. FIXED FULL-PAGE BACKGROUND IMAGE */}
-      <div 
-        className="fixed inset-0 z-0 w-full h-full bg-cover bg-center bg-no-repeat opacity-40 md:opacity-100"
-        style={{ backgroundImage: `url(${pkg.heroImage})` }}
-      >
-        <div className="absolute inset-0 bg-white/40 backdrop-blur-[2px]"></div>
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-white/20 to-white/60"></div>
-      </div>
+    <div className="min-h-screen bg-[#f6f9fb] font-body text-slate-950 selection:bg-cyan-200 selection:text-slate-950">
+      <SiteNav tone="light" />
 
-      {/* 2. STICKY LIGHT NAV */}
-      <nav className="sticky top-0 z-50 w-full flex justify-between items-center px-6 md:px-12 py-6 bg-white/60 backdrop-blur-xl border-b border-white/40 shadow-sm">
-        <div className="flex items-center gap-2">
-          <div className="bg-white/60 p-2 rounded-lg border border-white/50">
-            <Mountain size={24} className="text-slate-800" />
-          </div>
-          <h1 className="text-xl font-bold tracking-widest font-heading uppercase text-slate-800">Malang</h1>
-        </div>
-        <Link to="/" className="bg-white/60 backdrop-blur-md border border-white/50 px-5 py-2 flex items-center gap-2 text-xs uppercase tracking-widest font-bold text-slate-700 hover:bg-white/90 transition-all rounded-full shadow-sm">
-          <ArrowLeft size={14} /> Back
-        </Link>
-      </nav>
-
-      {/* 3. MAIN CONTENT LAYER */}
-      <main className="relative z-10 max-w-7xl mx-auto px-4 pt-12 pb-20">
-        
-        {/* TITLE PANEL */}
-        <div className="mb-12 text-center md:text-left bg-white/50 backdrop-blur-md p-8 md:p-12 rounded-[2.5rem] border border-white/40 shadow-sm">
-          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="flex flex-wrap gap-3 mb-6 justify-center md:justify-start">
-             <span className="bg-white/80 border border-white text-slate-800 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest shadow-sm">
-                {pkg.duration}
-             </span>
-             <span className="bg-blue-500/20 border border-blue-500/20 text-blue-700 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest shadow-sm">
-                {pkg.stayType}
-             </span>
-          </motion.div>
-          
-          <h1 className="text-4xl md:text-[5rem] font-bold font-heading text-slate-900 leading-[1.1] mb-6 drop-shadow-sm">
-            {pkg.title}
-          </h1>
-          <p className="text-slate-800 font-bold flex items-center justify-center md:justify-start gap-2 italic">
-            <MapPin size={18} className="text-blue-600"/> “Where Roads End, Adventure Begins”
-          </p>
-        </div>
-
-        <div className="flex flex-col lg:flex-row gap-10">
-          
-          {/* LEFT COLUMN: ITINERARY & TERMS */}
-          <div className="lg:w-2/3 space-y-12">
-            
-            {/* Itinerary Section */}
-            <section>
-                <h2 className="text-2xl font-bold font-heading text-slate-900 mb-8 flex items-center gap-3">
-                    <Calendar className="text-blue-600" /> Tour Plan
-                </h2>
-                <div className="space-y-6">
-                    {pkg.itinerary.map((day, idx) => (
-                    <motion.div key={idx} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="group relative flex flex-col md:flex-row bg-white/70 backdrop-blur-lg border border-white/60 rounded-3xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-500">
-                        <div className="md:w-1/3 h-48 md:h-auto overflow-hidden border-r border-white/40">
-                        <img src={day.image} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt={day.title} />
-                        </div>
-                        <div className="md:w-2/3 p-8">
-                        <div className="flex items-center gap-3 mb-3">
-                            <span className="text-blue-700 font-black text-xs uppercase tracking-tighter bg-blue-100/50 px-2 py-1 rounded">{day.day}</span>
-                            <h3 className="text-xl font-bold text-slate-800 font-heading">{day.title}</h3>
-                        </div>
-                        <p className="text-slate-700 text-sm leading-relaxed font-medium">{day.desc}</p>
-                        </div>
-                    </motion.div>
-                    ))}
-                </div>
-            </section>
-
-            {/* Inclusions & Exclusions Section */}
-            <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="bg-green-50/60 backdrop-blur-md p-8 rounded-[2rem] border border-green-200 shadow-sm">
-                    <h3 className="text-green-800 font-bold flex items-center gap-2 mb-4 uppercase tracking-widest text-sm">
-                        <CheckCircle2 size={20} /> Package Inclusions
-                    </h3>
-                    <ul className="space-y-3">
-                        {pkg.inclusions.map((item, i) => (
-                            <li key={i} className="text-slate-700 text-sm font-semibold flex gap-2">
-                                <span>{item}</span>
-                            </li>
-                        ))}
-                    </ul>
-                </div>
-                <div className="bg-red-50/60 backdrop-blur-md p-8 rounded-[2rem] border border-red-200 shadow-sm">
-                    <h3 className="text-red-800 font-bold flex items-center gap-2 mb-4 uppercase tracking-widest text-sm">
-                        <ShieldAlert size={20} /> Package Excludes
-                    </h3>
-                    <ul className="space-y-3">
-                        {pkg.excludes.map((item, i) => (
-                            <li key={i} className="text-slate-700 text-sm font-semibold flex gap-2">
-                                <span>{item}</span>
-                            </li>
-                        ))}
-                    </ul>
-                </div>
-            </section>
-
-            {/* Terms & Weather Policy Section */}
-            <section className="space-y-6">
-                <div className="bg-white/60 backdrop-blur-md p-8 rounded-[2rem] border border-slate-200 shadow-sm">
-                    <h3 className="text-slate-900 font-bold flex items-center gap-2 mb-4 uppercase tracking-widest text-sm underline underline-offset-8 decoration-blue-500">
-                        <Info size={20} /> Terms & Conditions
-                    </h3>
-                    <ul className="space-y-2">
-                        {pkg.terms.map((term, i) => (
-                            <li key={i} className="text-slate-700 text-xs font-bold leading-relaxed">• {term}</li>
-                        ))}
-                    </ul>
-                </div>
-
-                <div className="bg-orange-50/60 backdrop-blur-md p-8 rounded-[2.5rem] border border-orange-200 shadow-sm">
-                    <h3 className="text-orange-800 font-bold flex items-center gap-2 mb-3 uppercase tracking-widest text-sm">
-                        <CloudRain size={20} /> Natural Disaster & Weather Policy
-                    </h3>
-                    <p className="text-slate-700 text-xs font-bold leading-relaxed">{pkg.weatherPolicy}</p>
-                </div>
-            </section>
-
-            {/* RESORT & POLICY DETAILS */}
-            <div className="mt-12 space-y-8">
-                <div className="bg-slate-900/80 backdrop-blur-xl p-8 rounded-[2rem] border border-white/20 shadow-2xl">
-                    <h4 className="text-blue-400 font-black uppercase tracking-widest text-sm mb-4">📍 Resort Details</h4>
-                    <ul className="text-white text-base font-bold space-y-3">
-                        <li className="drop-shadow-md">• Srinagar se 15 km | Sonmarg se 20 km</li>
-                        <li className="drop-shadow-md">• Complimentary Bonfire Night Included</li>
-                    </ul>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="bg-slate-900/90 backdrop-blur-md p-8 rounded-[2rem] border border-white/10 shadow-xl">
-                        <h4 className="text-green-400 font-black uppercase tracking-widest text-xs mb-3">✅ Payment Policy</h4>
-                        <p className="text-white text-sm font-bold leading-relaxed drop-shadow-sm">
-                            30% Advance at Booking. <br/> 
-                            70% Balance at Srinagar Hotel Check-in.
-                        </p>
-                    </div>
-                    <div className="bg-slate-900/90 backdrop-blur-md p-8 rounded-[2rem] border border-white/10 shadow-xl">
-                        <h4 className="text-red-400 font-black uppercase tracking-widest text-xs mb-3">⚠️ Cancellation</h4>
-                        <p className="text-white text-sm font-bold leading-relaxed drop-shadow-sm">
-                            Package is Non-Refundable & Non-Transferable once booked.
-                        </p>
-                    </div>
-                </div>
+      <main>
+        <section className="relative flex min-h-[92vh] items-end overflow-hidden px-5 pb-16 pt-32 text-white sm:px-8">
+          <img src={pkg.heroImage} alt={pkg.title} className="absolute inset-0 h-full w-full object-cover" />
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/58 to-slate-950/10" />
+          <div className="relative mx-auto grid w-full max-w-7xl gap-8 lg:grid-cols-[1fr_370px] lg:items-end">
+            <div>
+              <Link
+                to="/#packages"
+                className="inline-flex items-center gap-2 border border-white/16 bg-white/10 px-4 py-3 text-xs font-black uppercase tracking-[0.2em] text-white backdrop-blur-xl"
+              >
+                <ArrowLeft size={15} />
+                Packages
+              </Link>
+              <div className="mt-6 flex flex-wrap gap-2">
+                <Badge icon={CalendarDays}>{pkg.duration}</Badge>
+                <Badge icon={BedDouble}>{pkg.stayType}</Badge>
+                <Badge icon={Train}>Indore Departure</Badge>
+              </div>
+              <h1 className="mt-6 max-w-5xl font-heading text-5xl font-black leading-[0.95] sm:text-7xl lg:text-8xl">
+                {pkg.title}
+              </h1>
+              <p className="mt-6 flex max-w-2xl items-start gap-3 text-base font-semibold leading-8 text-white/72">
+                <MapPin size={20} className="mt-1 shrink-0 text-cyan-200" />
+                Where roads end, adventure begins. A complete route across Srinagar,
+                Gulmarg, Sonmarg, Pahalgam, and the journey back home.
+              </p>
             </div>
-          </div>
 
-          {/* RIGHT COLUMN: BOOKING CARD */}
-          <div className="lg:w-1/3">
-            <div className="sticky top-28 bg-white/80 backdrop-blur-2xl border border-white rounded-[2.5rem] p-10 shadow-xl">
-              <h3 className="text-slate-500 text-xs font-black uppercase tracking-[0.2em] mb-8">Adventure Pass</h3>
-              <div className="space-y-6 mb-10">
-                <div>
-                  <p className="text-xs font-bold text-slate-400 uppercase mb-1">Per Traveler</p>
-                  <div className="flex items-center gap-1 text-slate-900">
-                    <IndianRupee size={22} className="text-blue-600" />
-                    <span className="text-5xl font-black tracking-tighter">{pkg.pricePerPerson}</span>
+            <motion.aside
+              initial={{ opacity: 0, y: 26 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.35, duration: 0.65 }}
+              className="border border-white/14 bg-white/10 p-5 shadow-2xl shadow-black/25 backdrop-blur-2xl"
+            >
+              <p className="text-[0.62rem] font-black uppercase tracking-[0.24em] text-white/48">
+                Starting Price
+              </p>
+              <div className="mt-3 flex items-center text-white">
+                <IndianRupee size={24} className="text-cyan-200" />
+                <span className="font-heading text-6xl font-black">{pkg.pricePerPerson}</span>
+              </div>
+              <p className="mt-2 text-sm font-bold text-white/60">per traveler</p>
+              <div className="mt-5 border-t border-white/10 pt-5">
+                <p className="text-xs font-black uppercase tracking-[0.18em] text-amber-200">
+                  Couple Price
+                </p>
+                <p className="mt-2 text-2xl font-black text-white">₹{pkg.priceCouple}</p>
+              </div>
+              <a
+                href={waLink}
+                target="_blank"
+                rel="noreferrer"
+                className="mt-6 inline-flex w-full items-center justify-center gap-3 bg-white px-6 py-5 text-xs font-black uppercase tracking-[0.2em] text-slate-950 transition-transform hover:-translate-y-0.5"
+              >
+                Reserve My Spot
+                <MessageCircle size={17} />
+              </a>
+            </motion.aside>
+          </div>
+        </section>
+
+        <section className="px-5 py-8 sm:px-8">
+          <div className="mx-auto grid max-w-7xl gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            {pkg.highlights.slice(0, 4).map((item, index) => (
+              <motion.div
+                key={item}
+                initial={{ opacity: 0, y: 18 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.06 }}
+                className="border border-slate-200 bg-white p-5 shadow-xl shadow-slate-950/5"
+              >
+                <Sparkles size={22} className="text-cyan-700" />
+                <p className="mt-4 text-sm font-black leading-6 text-slate-700">{clean(item)}</p>
+              </motion.div>
+            ))}
+          </div>
+        </section>
+
+        <section className="px-5 py-16 sm:px-8 lg:py-24">
+          <div className="mx-auto grid max-w-7xl gap-8 lg:grid-cols-[1fr_370px] lg:items-start">
+            <div className="space-y-12">
+              <section>
+                <div className="mb-8">
+                  <p className="text-xs font-black uppercase tracking-[0.34em] text-cyan-700">
+                    Day-by-Day Plan
+                  </p>
+                  <h2 className="mt-4 font-heading text-4xl font-black leading-tight sm:text-6xl">
+                    The itinerary, made scannable.
+                  </h2>
+                </div>
+
+                <div className="space-y-4">
+                  {pkg.itinerary.map((day, index) => (
+                    <motion.article
+                      key={`${day.day}-${day.title}`}
+                      initial={{ opacity: 0, y: 28 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true, margin: '-80px' }}
+                      transition={{ delay: index * 0.04, duration: 0.5 }}
+                      className="group grid overflow-hidden border border-slate-200 bg-white shadow-xl shadow-slate-950/5 md:grid-cols-[260px_1fr]"
+                    >
+                      <div className="image-shine relative min-h-[220px] overflow-hidden">
+                        <img
+                          src={day.image}
+                          alt={day.title}
+                          className="h-full w-full object-cover transition-transform duration-1000 group-hover:scale-110"
+                        />
+                      </div>
+                      <div className="p-6">
+                        <div className="flex flex-wrap items-center gap-3">
+                          <span className="bg-slate-950 px-3 py-2 text-[0.62rem] font-black uppercase tracking-[0.2em] text-white">
+                            {day.day}
+                          </span>
+                          <span className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-[0.18em] text-cyan-700">
+                            <Clock size={14} />
+                            Route Segment
+                          </span>
+                        </div>
+                        <h3 className="mt-5 font-heading text-3xl font-black">{day.title}</h3>
+                        <p className="mt-3 text-sm font-semibold leading-7 text-slate-600">{day.desc}</p>
+                      </div>
+                    </motion.article>
+                  ))}
+                </div>
+              </section>
+
+              <section className="grid gap-5 md:grid-cols-2">
+                <PolicyPanel
+                  title="Package Inclusions"
+                  Icon={CheckCircle2}
+                  tone="emerald"
+                  items={pkg.inclusions}
+                />
+                <PolicyPanel
+                  title="Package Excludes"
+                  Icon={XCircle}
+                  tone="rose"
+                  items={pkg.excludes}
+                />
+              </section>
+
+              <section className="grid gap-5 lg:grid-cols-[1fr_0.9fr]">
+                <div className="border border-slate-200 bg-white p-6 shadow-xl shadow-slate-950/5">
+                  <h3 className="flex items-center gap-3 font-heading text-3xl font-black">
+                    <Info className="text-cyan-700" />
+                    Terms & Conditions
+                  </h3>
+                  <div className="mt-6 space-y-3">
+                    {pkg.terms.map((term) => (
+                      <p key={term} className="flex gap-3 text-sm font-semibold leading-6 text-slate-600">
+                        <ShieldCheck size={17} className="mt-1 shrink-0 text-cyan-700" />
+                        {clean(term)}
+                      </p>
+                    ))}
                   </div>
                 </div>
-                <div className="pt-6 border-t border-slate-200/50">
-                  <p className="text-xs font-bold text-slate-400 uppercase mb-1">Group Booking</p>
-                  <p className="text-xl font-bold text-slate-700">₹{pkg.priceCouple} <span className="text-xs font-medium opacity-60">/ Couple</span></p>
+
+                <div className="border border-amber-200 bg-amber-50 p-6 shadow-xl shadow-amber-950/5">
+                  <h3 className="flex items-center gap-3 font-heading text-3xl font-black text-amber-950">
+                    <CloudRain className="text-amber-600" />
+                    Weather Policy
+                  </h3>
+                  <p className="mt-6 text-sm font-bold leading-7 text-amber-950/72">
+                    {pkg.weatherPolicy}
+                  </p>
+                </div>
+              </section>
+            </div>
+
+            <aside className="lg:sticky lg:top-28">
+              <div className="border border-slate-200 bg-white p-6 shadow-2xl shadow-slate-950/10">
+                <p className="text-xs font-black uppercase tracking-[0.24em] text-cyan-700">
+                  Booking Desk
+                </p>
+                <h3 className="mt-4 font-heading text-3xl font-black">Adventure Pass</h3>
+                <div className="mt-6 space-y-4 border-y border-slate-200 py-6">
+                  <PriceRow label="Per Traveler" value={`₹${pkg.pricePerPerson}`} />
+                  <PriceRow label="Couple" value={`₹${pkg.priceCouple}`} />
+                  <PriceRow label="Duration" value={pkg.duration} />
+                  <PriceRow label="Stay" value={pkg.stayType} />
+                </div>
+                <p className="mt-5 border border-cyan-100 bg-cyan-50 p-4 text-xs font-bold leading-6 text-cyan-950">
+                  {clean(pkg.paymentPolicy)}
+                </p>
+                <a
+                  href={waLink}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="mt-5 inline-flex w-full items-center justify-center gap-3 bg-slate-950 px-6 py-5 text-xs font-black uppercase tracking-[0.2em] text-white transition-transform hover:-translate-y-0.5"
+                >
+                  Chat & Book
+                  <MessageCircle size={17} />
+                </a>
+              </div>
+
+              <div className="mt-5 border border-slate-200 bg-white p-6 shadow-xl shadow-slate-950/5">
+                <p className="text-xs font-black uppercase tracking-[0.24em] text-amber-700">
+                  Route Covers
+                </p>
+                <div className="mt-5 grid grid-cols-2 gap-3">
+                  {destinationHighlights.map((place) => (
+                    <div key={place.name} className="border border-slate-200 bg-slate-50 p-3">
+                      <img src={place.image} alt={place.name} className="h-20 w-full object-cover" />
+                      <p className="mt-2 text-xs font-black text-slate-700">{place.name}</p>
+                    </div>
+                  ))}
                 </div>
               </div>
-
-              <div className="space-y-4 mb-8">
-                <p className="text-[10px] font-black text-blue-600 uppercase tracking-widest bg-blue-50 p-3 rounded-xl border border-blue-100 leading-relaxed">
-                  Payment Policy: {pkg.paymentPolicy}
-                </p>
-              </div>
-
-              <a href={waLink} target="_blank" rel="noreferrer" className="w-full bg-slate-900 text-white py-5 rounded-2xl font-bold text-sm uppercase tracking-widest hover:bg-blue-700 hover:scale-[1.02] transition-all shadow-lg active:scale-95 flex justify-center items-center gap-2">
-                Reserve My Spot
-              </a>
-            </div>
+            </aside>
           </div>
-        </div>
+        </section>
+
+        {related.length > 0 && (
+          <section className="bg-slate-950 px-5 py-20 text-white sm:px-8">
+            <div className="mx-auto flex max-w-7xl flex-col gap-5 border border-white/10 bg-white/[0.05] p-6 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p className="text-xs font-black uppercase tracking-[0.28em] text-cyan-200">
+                  Compare
+                </p>
+                <h2 className="mt-3 font-heading text-3xl font-black">
+                  Also consider {related[0].title}
+                </h2>
+              </div>
+              <Link
+                to={`/package/${related[0].id}`}
+                className="inline-flex items-center justify-center gap-3 bg-white px-6 py-4 text-xs font-black uppercase tracking-[0.2em] text-slate-950"
+              >
+                View Alternative
+                <ArrowRight size={16} />
+              </Link>
+            </div>
+          </section>
+        )}
       </main>
 
-      {/* FOOTER SECTION: About & Contact */}
-      <footer className="relative z-10 bg-white/80 backdrop-blur-2xl border-t border-slate-200 pt-20 pb-10">
-        <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-12">
-            <div className="space-y-6">
-                <div className="flex items-center gap-2">
-                    <Mountain size={28} className="text-slate-900" />
-                    <h2 className="text-2xl font-bold font-heading uppercase tracking-tighter">Malang Adventures</h2>
-                </div>
-                <p className="text-slate-600 text-sm font-medium leading-relaxed">
-                    Based in Indore, we specialize in high-altitude expeditions and curated Kashmir tours. We believe that where roads end, true adventure begins.
-                </p>
-            </div>
-            
-            <div className="space-y-6">
-                <h3 className="text-sm font-black uppercase tracking-widest text-blue-600">Contact Us</h3>
-                <div className="space-y-4 text-slate-800 font-bold text-sm">
-                    <p className="flex items-center gap-3"><Phone size={18} className="text-slate-400" /> 99771 10166 / 70001 05582</p>
-                    <p className="flex items-center gap-3"><MapPin size={18} className="text-slate-400" /> Indore, Madhya Pradesh</p>
-                </div>
-            </div>
-
-            <div className="space-y-6">
-                <h3 className="text-sm font-black uppercase tracking-widest text-blue-600">Quick Connect</h3>
-                <p className="text-slate-600 text-xs font-bold leading-relaxed">Ready for your trip? Message us directly for customized itineraries and group bookings.</p>
-                <a href={waLink} className="inline-flex items-center gap-2 bg-[#25D366] text-white px-6 py-3 rounded-full font-bold shadow-md hover:scale-105 transition-all">
-                    <MessageCircle size={20} /> Chat on WhatsApp
-                </a>
-            </div>
-        </div>
-        <div className="mt-16 text-center text-slate-400 text-[10px] font-black uppercase tracking-widest">
-            © 2026 Malang Adventure Tour & Travels Indore
-        </div>
-      </footer>
-
-      {/* FLOATING WHATSAPP BUTTON */}
-      <a 
-        href={waLink}
-        target="_blank" 
-        rel="noopener noreferrer"
-        className="fixed bottom-8 right-8 z-[100] bg-[#25D366] text-white p-4 rounded-full shadow-2xl hover:scale-110 transition-all active:scale-90"
-      >
-        <MessageCircle size={32} />
-      </a>
+      <Footer tone="light" />
     </div>
   );
+}
+
+function Badge({ children, icon: Icon }) {
+  return (
+    <span className="inline-flex items-center gap-2 border border-white/16 bg-white/10 px-3 py-2 text-[0.64rem] font-black uppercase tracking-[0.18em] text-white backdrop-blur-xl">
+      <Icon size={14} />
+      {children}
+    </span>
+  );
+}
+
+function PolicyPanel({ Icon, items, title, tone }) {
+  const toneClass =
+    tone === 'emerald'
+      ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
+      : 'border-rose-200 bg-rose-50 text-rose-700';
+
+  return (
+    <div className="border border-slate-200 bg-white p-6 shadow-xl shadow-slate-950/5">
+      <h3 className="flex items-center gap-3 font-heading text-3xl font-black">
+        <span className={`grid h-11 w-11 place-items-center border ${toneClass}`}>
+          <Icon size={21} />
+        </span>
+        {title}
+      </h3>
+      <div className="mt-6 space-y-3">
+        {items.map((item) => (
+          <p key={item} className="text-sm font-semibold leading-6 text-slate-600">
+            {clean(item)}
+          </p>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function PriceRow({ label, value }) {
+  return (
+    <div className="flex items-start justify-between gap-4">
+      <p className="text-[0.62rem] font-black uppercase tracking-[0.2em] text-slate-400">
+        {label}
+      </p>
+      <p className="text-right text-sm font-black text-slate-800">{value}</p>
+    </div>
+  );
+}
+
+function clean(value) {
+  return value.replace(/^[^\p{L}\p{N}]+/u, '').trim();
 }

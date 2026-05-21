@@ -1,88 +1,136 @@
 import { motion } from 'framer-motion';
-import { MapPin } from 'lucide-react';
+import { ArrowRight, MapPin, Navigation, Train } from 'lucide-react';
 
-export default function AnimatedMap() {
-  const locations = [
-    { name: "Indore", x: "480", y: "410", delay: 0 },
-    { name: "Jammu", x: "420", y: "200", delay: 1.5 },
-    { name: "Srinagar", x: "440", y: "150", delay: 2 },
-    { name: "Gulmarg", x: "380", y: "140", delay: 2.5 },
-    { name: "Sonmarg", x: "500", y: "110", delay: 3 },
-    { name: "Pahalgam", x: "520", y: "160", delay: 3.5 },
-  ];
+const locations = [
+  { name: 'Indore', x: 480, y: 410, delay: 0, type: 'Departure' },
+  { name: 'Jammu', x: 420, y: 205, delay: 0.65, type: 'Rail Arrival' },
+  { name: 'Srinagar', x: 440, y: 150, delay: 1, type: 'Base' },
+  { name: 'Gulmarg', x: 380, y: 140, delay: 1.3, type: 'Snow' },
+  { name: 'Sonmarg', x: 505, y: 112, delay: 1.55, type: 'Glacier' },
+  { name: 'Pahalgam', x: 525, y: 168, delay: 1.8, type: 'Valley' },
+];
 
+export default function AnimatedMap({ compact = false }) {
   return (
-    <section className="relative z-10 py-24 px-6 bg-transparent">
-      <div className="max-w-6xl mx-auto">
-        <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-bold font-heading text-white inline-block glass-panel px-10 py-4 shadow-2xl">
-            Expedition Route
-          </h2>
-          <p className="text-white/60 mt-4 uppercase tracking-[0.3em] text-[10px] font-black">Indore Se Kashmir Tak</p>
-        </div>
-
-        <div className="glass-panel w-full aspect-video md:aspect-[21/9] relative overflow-hidden bg-slate-900/70 border-white/10 shadow-2xl">
-          {/* Subtle Map Background Decoration */}
-          <div className="absolute inset-0 opacity-10 pointer-events-none">
-            <svg width="100%" height="100%" viewBox="0 0 800 400" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M150 350 L300 150 L350 80 L400 50 L500 100" stroke="white" strokeWidth="0.5" strokeDasharray="5 5" />
-            </svg>
-          </div>
-
-          {/* Animated Route Line */}
-          <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 1000 500">
-            {/* The Route Line - Smoother Bezier Curve */}
-            <motion.path
-              d="M 480 410 C 420 350, 400 250, 420 200 S 440 160, 440 150" 
-              stroke="#60a5fa"
-              strokeWidth="4"
-              fill="transparent"
-              strokeLinecap="round"
-              initial={{ pathLength: 0, opacity: 0 }}
-              whileInView={{ pathLength: 1, opacity: 1 }}
-              transition={{ duration: 4, ease: "easeInOut" }}
-              style={{ filter: "drop-shadow(0 0 12px rgba(96, 165, 250, 0.9))" }}
-            />
-
-            {/* Branch lines to Gulmarg/Sonmarg/Pahalgam */}
-            <motion.path
-              d="M 440 150 L 380 140 M 440 150 L 500 110 M 440 150 L 520 160"
-              stroke="#60a5fa"
-              strokeWidth="2"
-              strokeDasharray="5 5"
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 0.6 }}
-              transition={{ delay: 2.2, duration: 1 }}
-            />
-          </svg>
-
-          {/* Location Pins */}
-          {locations.map((loc, i) => (
-            <motion.div
-              key={i}
-              className="absolute flex flex-col items-center -translate-x-1/2 -translate-y-1/2"
-              style={{ left: `${(loc.x / 1000) * 100}%`, top: `${(loc.y / 500) * 100}%` }}
-              initial={{ scale: 0, opacity: 0 }}
-              whileInView={{ scale: 1, opacity: 1 }}
-              transition={{ delay: loc.delay, duration: 0.5 }}
-            >
-              <div className="relative">
-                <div className="absolute -inset-3 bg-blue-500 rounded-full blur-xl opacity-30 animate-pulse"></div>
-                <MapPin size={22} className={i === 0 ? "text-orange-500" : "text-blue-400"} fill="currentColor" fillOpacity="0.2" />
-              </div>
-              <span className="mt-2 text-[10px] font-black uppercase tracking-tighter text-white bg-slate-950/90 px-3 py-1 rounded-full border border-white/20 shadow-2xl">
-                {loc.name}
-              </span>
-            </motion.div>
-          ))}
-
-          {/* Map Legend */}
-          <div className="absolute bottom-6 left-6 flex flex-col md:flex-row gap-4 md:gap-8 text-[10px] font-bold uppercase tracking-widest text-white/40">
-            <div className="flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-orange-400 shadow-[0_0_8px_#fb923c]"></div> Departure (Indore)
+    <section className={compact ? 'relative z-10' : 'relative z-10 px-5 py-20 sm:px-8 lg:py-28'}>
+      <div className="mx-auto max-w-7xl">
+        {!compact && (
+          <div className="mb-10 grid gap-6 lg:grid-cols-[0.9fr_1.1fr] lg:items-end">
+            <div>
+              <p className="text-xs font-black uppercase tracking-[0.34em] text-cyan-200">
+                Animated Route
+              </p>
+              <h2 className="mt-4 font-heading text-4xl font-black leading-tight text-white sm:text-6xl">
+                Indore se Kashmir tak, one flowing route.
+              </h2>
             </div>
-            <div className="flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-blue-400 shadow-[0_0_8px_#60a5fa]"></div> Adventure Points
+            <p className="max-w-2xl text-sm font-medium leading-7 text-white/62 lg:ml-auto">
+              The route visualization keeps the trip easy to understand: train north,
+              road into Srinagar, then day loops toward the valley's strongest moments.
+            </p>
+          </div>
+        )}
+
+        <div className="relative overflow-hidden border border-white/12 bg-slate-950/68 shadow-2xl shadow-black/25 backdrop-blur-2xl">
+          <div className="absolute inset-0 opacity-[0.07]">
+            <div className="h-full w-full bg-[linear-gradient(90deg,#fff_1px,transparent_1px),linear-gradient(#fff_1px,transparent_1px)] bg-[size:48px_48px]" />
+          </div>
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_20%,rgba(34,211,238,0.16),transparent_40%),linear-gradient(135deg,rgba(15,23,42,0.9),rgba(2,6,23,0.76))]" />
+
+          <div className="relative grid min-h-[520px] gap-8 p-4 sm:p-7 lg:grid-cols-[1fr_300px]">
+            <div className="relative min-h-[440px] overflow-hidden border border-white/8 bg-slate-900/35">
+              <svg className="absolute inset-0 h-full w-full" viewBox="0 0 1000 500" preserveAspectRatio="xMidYMid meet">
+                <motion.path
+                  d="M 480 410 C 430 360, 385 270, 420 205 C 440 170, 440 156, 440 150"
+                  stroke="#22d3ee"
+                  strokeWidth="5"
+                  fill="none"
+                  strokeLinecap="round"
+                  initial={{ pathLength: 0, opacity: 0 }}
+                  whileInView={{ pathLength: 1, opacity: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 2.4, ease: 'easeInOut' }}
+                  style={{ filter: 'drop-shadow(0 0 14px rgba(34, 211, 238, 0.9))' }}
+                />
+                <motion.path
+                  d="M 440 150 L 380 140 M 440 150 L 505 112 M 440 150 L 525 168"
+                  stroke="#fbbf24"
+                  strokeWidth="3"
+                  strokeDasharray="7 9"
+                  fill="none"
+                  strokeLinecap="round"
+                  initial={{ opacity: 0, pathLength: 0 }}
+                  whileInView={{ opacity: 0.9, pathLength: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: 1.45, duration: 1.1 }}
+                />
+              </svg>
+
+              {locations.map((loc, index) => (
+                <motion.div
+                  key={loc.name}
+                  className="absolute flex -translate-x-1/2 -translate-y-1/2 flex-col items-center"
+                  style={{ left: `${(loc.x / 1000) * 100}%`, top: `${(loc.y / 500) * 100}%` }}
+                  initial={{ opacity: 0, scale: 0.65, y: 12 }}
+                  whileInView={{ opacity: 1, scale: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: loc.delay, type: 'spring', stiffness: 170, damping: 13 }}
+                >
+                  <span
+                    className={[
+                      'grid h-9 w-9 place-items-center border shadow-xl backdrop-blur-md',
+                      index === 0
+                        ? 'border-amber-300/50 bg-amber-300 text-slate-950'
+                        : 'border-cyan-200/50 bg-slate-950/72 text-cyan-200',
+                    ].join(' ')}
+                  >
+                    {index === 0 ? <Train size={17} /> : <MapPin size={17} fill="currentColor" fillOpacity="0.2" />}
+                  </span>
+                  <span className="mt-2 max-w-[94px] truncate bg-slate-950/88 px-2 py-1 text-center text-[0.58rem] font-black uppercase tracking-[0.12em] text-white shadow-xl">
+                    {loc.name}
+                  </span>
+                </motion.div>
+              ))}
+            </div>
+
+            <div className="relative flex flex-col justify-between border border-white/8 bg-white/[0.04] p-5">
+              <div>
+                <div className="mb-5 flex items-center gap-3">
+                  <span className="grid h-10 w-10 place-items-center bg-white text-slate-950">
+                    <Navigation size={19} />
+                  </span>
+                  <div>
+                    <p className="text-xs font-black uppercase tracking-[0.2em] text-cyan-200">
+                      Route Intel
+                    </p>
+                    <p className="text-sm font-semibold text-white/58">6 major travel points</p>
+                  </div>
+                </div>
+                <div className="space-y-3">
+                  {locations.map((loc, index) => (
+                    <motion.div
+                      key={loc.name}
+                      initial={{ opacity: 0, x: 16 }}
+                      whileInView={{ opacity: 1, x: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: 0.1 * index }}
+                      className="flex items-center justify-between border border-white/8 bg-slate-950/40 px-3 py-3"
+                    >
+                      <span className="text-sm font-black text-white">{loc.name}</span>
+                      <span className="text-[0.58rem] font-black uppercase tracking-[0.18em] text-white/45">
+                        {loc.type}
+                      </span>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+              <a
+                href="/destinations"
+                className="group mt-6 inline-flex items-center justify-center gap-3 bg-white px-5 py-4 text-xs font-black uppercase tracking-[0.18em] text-slate-950 transition-transform hover:-translate-y-0.5"
+              >
+                Explore Places
+                <ArrowRight size={16} className="transition-transform group-hover:translate-x-1" />
+              </a>
             </div>
           </div>
         </div>

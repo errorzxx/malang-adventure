@@ -1,8 +1,7 @@
-@import "tailwindcss";
-@config "../tailwind.config.js";
-
 /* Import the premium fonts from Google */
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900&display=swap');
+@import "tailwindcss";
+@config "../tailwind.config.js";
 
 @layer base {
   html {
@@ -13,35 +12,120 @@
     background-color: #0D1B2A; 
     color: #F4F7FB; 
     overflow-x: hidden;
+    min-width: 320px;
+  }
+
+  img,
+  canvas,
+  svg {
+    max-width: 100%;
+  }
+
+  a {
+    text-decoration: none;
   }
 }
 
 @layer utilities {
-  /* Standard Smoked Glass */
   .glass-panel {
-    @apply bg-brand-midnight/50 backdrop-blur-[20px] border border-white/20 shadow-[0_8px_32px_0_rgba(0,0,0,0.4)] rounded-2xl;
+    @apply bg-brand-midnight/50 backdrop-blur-[20px] border border-white/20 shadow-[0_8px_32px_0_rgba(0,0,0,0.4)];
   }
 
-  /* NEW: High-Contrast Dark Glass (Use this for the difficult-to-read policy boxes) */
   .glass-dark {
     @apply bg-slate-900/85 backdrop-blur-2xl border border-white/20 shadow-[0_20px_50px_rgba(0,0,0,0.5)];
   }
   
   .glass-button-primary {
-    @apply bg-gradient-to-r from-[#E6F0FF]/80 to-[#AFC7E6]/80 backdrop-blur-[20px] text-brand-midnight border border-white/50 transition-all duration-300 rounded-full px-8 py-3 font-semibold shadow-lg hover:shadow-xl hover:scale-105 flex items-center gap-2;
+    @apply bg-gradient-to-r from-[#E6F0FF]/90 to-[#BFF4E4]/90 backdrop-blur-[20px] text-brand-midnight border border-white/50 transition-all duration-300 px-8 py-3 font-semibold shadow-lg hover:shadow-xl hover:-translate-y-0.5 flex items-center gap-2;
   }
 
   .glass-button-secondary {
-    @apply bg-brand-midnight/40 backdrop-blur-[20px] text-white border border-white/30 transition-all duration-300 rounded-full px-6 py-2 font-medium hover:bg-brand-midnight/60;
+    @apply bg-brand-midnight/40 backdrop-blur-[20px] text-white border border-white/30 transition-all duration-300 px-6 py-2 font-medium hover:bg-brand-midnight/60;
   }
 
-  /* Standard Legibility */
   .text-legible {
     text-shadow: 0px 1px 3px rgba(0, 0, 0, 0.8);
   }
 
-  /* NEW: Heavy Text Shadow for Hero Titles */
   .text-pop {
     text-shadow: 0 2px 15px rgba(0,0,0,0.9);
+  }
+
+  .noise-layer {
+    background-image:
+      linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+    background-size: 54px 54px;
+  }
+
+  .cinematic-mask {
+    mask-image: linear-gradient(to bottom, transparent 0%, black 10%, black 88%, transparent 100%);
+  }
+
+  .image-shine::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    transform: translateX(-120%) skewX(-18deg);
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.26), transparent);
+    transition: transform 900ms ease;
+  }
+
+  .group:hover .image-shine::after {
+    transform: translateX(120%) skewX(-18deg);
+  }
+
+  .marquee-track {
+    animation: marquee 28s linear infinite;
+  }
+
+  .float-soft {
+    animation: float-soft 5.5s ease-in-out infinite;
+  }
+
+  .scan-line {
+    animation: scan-line 3.2s ease-in-out infinite;
+  }
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes float-soft {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes scan-line {
+  0%, 100% {
+    transform: translateY(-110%);
+    opacity: 0;
+  }
+  20%, 70% {
+    opacity: 1;
+  }
+  50% {
+    transform: translateY(110%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
   }
 }

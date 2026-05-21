@@ -1,87 +1,108 @@
-import { useRef, useEffect } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { motion } from 'framer-motion';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 gsap.registerPlugin(ScrollTrigger);
 
+const frameCount = 196;
+
 export default function HeroCanvas() {
   const canvasRef = useRef(null);
   const containerRef = useRef(null);
-  
-  // Change this to the exact number of frames you extracted from your video
-  const frameCount = 196; 
+  const [ready, setReady] = useState(false);
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    const context = canvas.getContext('2d');
-    
-    // We store our images here so they are ready to draw instantly
+    const container = containerRef.current;
+    const context = canvas?.getContext('2d');
+
+    if (!canvas || !container || !context) return undefined;
+
+    let mounted = true;
     const images = [];
-    
-    // GSAP will animate this object from 0 to 149
-    const mountainSequence = { frame: 0 }; 
+    const mountainSequence = { frame: 0 };
 
-    // 1. Preload all the images
-    for (let i = 1; i <= frameCount; i++) {
-      const img = new Image();
-      // Adjust the path and padding to match how you named your files!
-      // This looks for: /mountain-frames/0001.jpg, 0002.jpg, etc.
-      img.src = `/mountain-frames/${i.toString().padStart(4, '0')}.jpg`;
-      images.push(img);
-    }
-
-    // 2. The drawing function (makes sure the image covers the whole screen like a background)
     const render = () => {
-      if (!images[mountainSequence.frame] || !images[mountainSequence.frame].complete) return;
-      
-      const img = images[mountainSequence.frame];
-      
-      // Math to make the image act like "object-fit: cover"
-      const hRatio = canvas.width / img.width;
-      const vRatio = canvas.height / img.height;
-      const ratio = Math.max(hRatio, vRatio);
-      const centerShift_x = (canvas.width - img.width * ratio) / 2;
-      const centerShift_y = (canvas.height - img.height * ratio) / 2;
-      
+      const currentImage = images[mountainSequence.frame];
+      if (!currentImage?.complete || !currentImage.naturalWidth) return;
+
+      const ratio = Math.max(
+        canvas.width / currentImage.naturalWidth,
+        canvas.height / currentImage.naturalHeight
+      );
+      const width = currentImage.naturalWidth * ratio;
+      const height = currentImage.naturalHeight * ratio;
+      const x = (canvas.width - width) / 2;
+      const y = (canvas.height - height) / 2;
+
       context.clearRect(0, 0, canvas.width, canvas.height);
-      context.drawImage(img, 0, 0, img.width, img.height, centerShift_x, centerShift_y, img.width * ratio, img.height * ratio);
+      context.drawImage(currentImage, x, y, width, height);
     };
 
-    // Draw the very first frame as soon as it loads
-    images[0].onload = render;
-
-    // 3. The GSAP Scroll Timeline
-    gsap.to(mountainSequence, {
-      frame: frameCount - 1,
-      snap: "frame", // Ensures we only ask for whole numbers (Frame 1, not Frame 1.5)
-      ease: "none",
-      scrollTrigger: {
-        trigger: containerRef.current,
-        start: 'top top',
-        end: 'bottom bottom',
-        scrub: 0.5, // The 0.5 adds a tiny bit of smoothing to the scroll link
-      },
-      onUpdate: render // Every time the user scrolls, draw the new frame!
-    });
-
-    // 4. Keep canvas sharp if the user resizes the window
     const resizeCanvas = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      canvas.width = Math.floor(window.innerWidth * dpr);
+      canvas.height = Math.floor(window.innerHeight * dpr);
+      canvas.style.width = `${window.innerWidth}px`;
+      canvas.style.height = `${window.innerHeight}px`;
       render();
     };
-    
+
+    for (let index = 1; index <= frameCount; index += 1) {
+      const image = new Image();
+      image.src = `/mountain-frames/${index.toString().padStart(4, '0')}.jpg`;
+      images.push(image);
+    }
+
+    images[0].onload = () => {
+      if (!mounted) return;
+      setReady(true);
+      resizeCanvas();
+      render();
+    };
+
+    const tween = gsap.to(mountainSequence, {
+      frame: frameCount - 1,
+      snap: 'frame',
+      ease: 'none',
+      scrollTrigger: {
+        trigger: container,
+        start: 'top top',
+        end: 'bottom bottom',
+        scrub: 0.55,
+      },
+      onUpdate: render,
+    });
+
     window.addEventListener('resize', resizeCanvas);
     resizeCanvas();
 
-    return () => window.removeEventListener('resize', resizeCanvas);
-  }, [frameCount]);
+    return () => {
+      mounted = false;
+      window.removeEventListener('resize', resizeCanvas);
+      tween.scrollTrigger?.kill();
+      tween.kill();
+    };
+  }, []);
 
   return (
-    // Height determines how long the scroll takes. 300vh gives a nice, long sweep.
     <div ref={containerRef} className="relative z-0 h-[300vh] pointer-events-none">
-      <div className="sticky top-0 h-screen w-full bg-black">
-        <canvas ref={canvasRef} className="w-full h-full" />
+      <div className="sticky top-0 h-screen w-full overflow-hidden bg-slate-950">
+        {!ready && (
+          <motion.img
+            src="/mountain-frames/0001.jpg"
+            alt=""
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="absolute inset-0 h-full w-full object-cover"
+          />
+        )}
+        <canvas
+          ref={canvasRef}
+          aria-hidden="true"
+          className={`h-full w-full transition-opacity duration-700 ${ready ? 'opacity-100' : 'opacity-0'}`}
+        />
       </div>
     </div>
   );

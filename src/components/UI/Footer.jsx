@@ -1,76 +1,170 @@
-import { Mountain, Phone, MapPin, MessageCircle, Globe, Camera, PlaySquare } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import {
+  ArrowUpRight,
+  Camera,
+  MapPin,
+  MessageCircle,
+  Mountain,
+  Phone,
+  PlaySquare,
+} from 'lucide-react';
+import { navLinks, whatsappLinkNumber, whatsappMessage, whatsappNumber } from '../../data/site';
 
-export default function Footer() {
-  const whatsappNumber = "9977110166";
-  const message = encodeURIComponent("Hello! I'm interested in a Kashmir Tour package.");
+export default function Footer({ tone = 'dark' }) {
+  const isLight = tone === 'light';
+  const whatsappHref = `https://wa.me/${whatsappLinkNumber}?text=${whatsappMessage}`;
 
   return (
-    <footer className="relative z-20 bg-white/60 backdrop-blur-2xl border-t border-white/40 pt-20 pb-10">
-      <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-16">
-        
-        {/* ABOUT SECTION */}
-        <div className="space-y-6">
-          <div className="flex items-center gap-2">
-            <Mountain size={32} className="text-slate-800" />
-            <h2 className="text-2xl font-bold font-heading tracking-widest text-slate-800 uppercase">Malang</h2>
-          </div>
-          <p className="text-slate-600 leading-relaxed font-medium italic">
-            "Where Roads End, Adventure Begins." <br />
-            Based in Indore, we are your premier gateway to the Himalayas.
-          </p>
-          {/* FIXED BRAND ICONS */}
-          <div className="flex gap-4">
-            <Globe className="text-slate-400 hover:text-blue-600 cursor-pointer transition-colors" />
-            <Camera className="text-slate-400 hover:text-pink-600 cursor-pointer transition-colors" />
-            <PlaySquare className="text-slate-400 hover:text-red-600 cursor-pointer transition-colors" />
-          </div>
-        </div>
+    <footer
+      className={[
+        'relative z-20 overflow-hidden border-t px-5 py-16 sm:px-8',
+        isLight
+          ? 'border-slate-200 bg-white text-slate-950'
+          : 'border-white/10 bg-slate-950/92 text-white',
+      ].join(' ')}
+    >
+      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-cyan-300/70 to-transparent" />
 
-        {/* CONTACT SECTION */}
-        <div className="space-y-6 text-slate-800">
-          <h3 className="text-lg font-bold uppercase tracking-widest">Contact Us</h3>
-          <ul className="space-y-4">
-            <li className="flex items-center gap-4 font-bold">
-              <Phone size={20} className="text-blue-600" />
-              <div>
-                <p>99771 10166</p>
-                <p>70001 05582</p>
-              </div>
-            </li>
-            <li className="flex items-center gap-4 font-bold">
-              <MapPin size={20} className="text-blue-600" />
-              <p>Indore, Madhya Pradesh</p>
-            </li>
-          </ul>
-        </div>
-
-        {/* WHATSAPP ACTION */}
-        <div className="space-y-6">
-          <h3 className="text-lg font-bold uppercase tracking-widest text-slate-900">Get in Touch</h3>
-          <a 
-            href={`https://wa.me/${whatsappNumber}?text=${message}`}
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-3 bg-[#25D366] text-white px-8 py-4 rounded-2xl font-bold hover:scale-105 transition-all shadow-lg"
+      <div className="mx-auto grid max-w-7xl gap-12 lg:grid-cols-[1.15fr_0.85fr_0.85fr]">
+        <div className="max-w-md">
+          <div className="flex items-center gap-3">
+            <span
+              className={[
+                'grid h-12 w-12 place-items-center border',
+                isLight ? 'border-slate-200 bg-slate-950 text-white' : 'border-white/15 bg-white/10',
+              ].join(' ')}
+            >
+              <Mountain size={25} />
+            </span>
+            <div>
+              <h2 className="font-heading text-2xl font-black uppercase tracking-[0.16em]">
+                Malang
+              </h2>
+              <p
+                className={[
+                  'text-[0.62rem] font-black uppercase tracking-[0.34em]',
+                  isLight ? 'text-slate-500' : 'text-white/50',
+                ].join(' ')}
+              >
+                Adventure Tour & Travels
+              </p>
+            </div>
+          </div>
+          <p
+            className={[
+              'mt-7 text-sm font-medium leading-7',
+              isLight ? 'text-slate-600' : 'text-white/62',
+            ].join(' ')}
           >
-            <MessageCircle size={24} /> WhatsApp Now
-          </a>
+            Indore's Kashmir-focused travel crew for scenic group departures,
+            transparent trip planning, and WhatsApp-first support.
+          </p>
+          <div className="mt-7 flex gap-3">
+            {[Camera, PlaySquare, MessageCircle].map((Icon, index) => (
+              <a
+                key={index}
+                href={index === 2 ? whatsappHref : '/gallery'}
+                aria-label="Open Malang social link"
+                className={[
+                  'grid h-11 w-11 place-items-center border transition-transform hover:-translate-y-1',
+                  isLight
+                    ? 'border-slate-200 bg-slate-50 text-slate-700'
+                    : 'border-white/10 bg-white/6 text-white/75',
+                ].join(' ')}
+              >
+                <Icon size={19} />
+              </a>
+            ))}
+          </div>
+        </div>
+
+        <div>
+          <h3 className="text-xs font-black uppercase tracking-[0.28em] text-cyan-300">
+            Explore
+          </h3>
+          <div className="mt-6 grid grid-cols-2 gap-3">
+            {navLinks.map((item) =>
+              item.href.includes('#') ? (
+                <a
+                  key={item.href}
+                  href={item.href}
+                  className={[
+                    'group flex items-center justify-between border px-4 py-3 text-xs font-black uppercase tracking-[0.14em] transition-colors',
+                    isLight
+                      ? 'border-slate-200 text-slate-700 hover:bg-slate-950 hover:text-white'
+                      : 'border-white/10 text-white/70 hover:bg-white hover:text-slate-950',
+                  ].join(' ')}
+                >
+                  {item.label}
+                  <ArrowUpRight size={14} className="transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+                </a>
+              ) : (
+                <Link
+                  key={item.href}
+                  to={item.href}
+                  className={[
+                    'group flex items-center justify-between border px-4 py-3 text-xs font-black uppercase tracking-[0.14em] transition-colors',
+                    isLight
+                      ? 'border-slate-200 text-slate-700 hover:bg-slate-950 hover:text-white'
+                      : 'border-white/10 text-white/70 hover:bg-white hover:text-slate-950',
+                  ].join(' ')}
+                >
+                  {item.label}
+                  <ArrowUpRight size={14} className="transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+                </Link>
+              )
+            )}
+          </div>
+        </div>
+
+        <div>
+          <h3 className="text-xs font-black uppercase tracking-[0.28em] text-cyan-300">
+            Contact
+          </h3>
+          <div className="mt-6 space-y-4">
+            <a
+              href={`tel:+91${whatsappNumber}`}
+              className={[
+                'flex items-center gap-4 border p-4 font-bold',
+                isLight ? 'border-slate-200 bg-slate-50' : 'border-white/10 bg-white/6',
+              ].join(' ')}
+            >
+              <Phone size={18} className="text-cyan-300" />
+              <span>
+                99771 10166
+                <span className="block text-xs opacity-55">70001 05582</span>
+              </span>
+            </a>
+            <div
+              className={[
+                'flex items-center gap-4 border p-4 font-bold',
+                isLight ? 'border-slate-200 bg-slate-50' : 'border-white/10 bg-white/6',
+              ].join(' ')}
+            >
+              <MapPin size={18} className="text-amber-300" />
+              <span>Indore, Madhya Pradesh</span>
+            </div>
+            <a
+              href={whatsappHref}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex w-full items-center justify-center gap-3 bg-[#25D366] px-6 py-4 text-sm font-black uppercase tracking-[0.18em] text-white shadow-xl shadow-emerald-950/20 transition-transform hover:-translate-y-1"
+            >
+              <MessageCircle size={19} />
+              WhatsApp Now
+            </a>
+          </div>
         </div>
       </div>
 
-      <div className="mt-20 pt-8 border-t border-slate-200 text-center text-slate-400 text-[10px] font-black tracking-widest uppercase">
-        © 2026 Malang Adventure Tour & Travels Indore.
-      </div>
-
-      {/* FLOATING WHATSAPP */}
-      <a 
-        href={`https://wa.me/${whatsappNumber}?text=${message}`}
-        target="_blank" 
-        rel="noopener noreferrer"
-        className="fixed bottom-8 right-8 z-[100] bg-[#25D366] text-white p-4 rounded-full shadow-2xl hover:scale-110 transition-all"
+      <div
+        className={[
+          'mx-auto mt-14 max-w-7xl border-t pt-7 text-center text-[0.65rem] font-black uppercase tracking-[0.24em]',
+          isLight ? 'border-slate-200 text-slate-400' : 'border-white/10 text-white/35',
+        ].join(' ')}
       >
-        <MessageCircle size={32} />
-      </a>
+        © 2026 Malang Adventure Tour & Travels Indore
+      </div>
     </footer>
   );
 }
